@@ -99,7 +99,7 @@ def run_imcore_on_fits(fits_path, output_dir, ipix=2, thresh=3, cattype=2):
     cmd = [
         'imcore',
         fits_path,
-        'noconf',
+        'noconf',  # see notes for more details
         cat_path,
         str(ipix),
         str(thresh),
