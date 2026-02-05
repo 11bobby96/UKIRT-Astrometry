@@ -71,8 +71,11 @@ def run_imcore_on_fits(fits_path, output_dir, mesh_size=2, threshold=3, cattype=
         I have not put much thought into this parameter. This should be
         optimized in the future.
     threshold
-        Detection threshold in units of background sigma. Sources must exceed
-        this value above the local background to be detected.
+        The isophotal analysis threshold, specified in terms of the number of
+        standard deviations above the local background level. The global sigma
+        is computed as part of the background estimation. The minimum allowed
+        value is 1 and the recommended value for general purpose deep image
+        detection is 1.25.
     cattype
         Output catalogue type: 1 == INT WFC, 2 == WFCAM,
         3 == Basic, 4 == Object Mask, 6 == VIRCAM or VST
