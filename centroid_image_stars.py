@@ -55,7 +55,7 @@ def centroid_image_stars(fits_dir, output_dir):
             print(f'Failed on {fits_path}: {e}')
 
 
-def run_imcore_on_fits(fits_path, output_dir, mesh_size=2, threshold=3, cattype=2):
+def run_imcore_on_fits(fits_path, output_dir, ipix=2, threshold=3, cattype=2):
     """
     Run CASU imcore source extraction on a FITS image.
 
@@ -65,11 +65,10 @@ def run_imcore_on_fits(fits_path, output_dir, mesh_size=2, threshold=3, cattype=
         Path to the FITS image to process.
     output_dir
         Directory where output catalog files will be written.
-    mesh_size
-        Background mesh size used by imcore for local background estimation.
-        Smaller values provide finer background sampling but may increase noise.
-        I have not put much thought into this parameter. This should be
-        optimized in the future.
+    ipix
+        Minimum number of pixels above background for an object to be
+        considered a detection. I have not put much thought into this
+        parameter. This should be optimized in the future.
     threshold
         The isophotal analysis threshold, specified in terms of the number of
         standard deviations above the local background level. The global sigma
@@ -96,7 +95,7 @@ def run_imcore_on_fits(fits_path, output_dir, mesh_size=2, threshold=3, cattype=
         fits_path,
         'noconf',
         cat_path,
-        str(mesh_size),
+        str(ipix),
         str(threshold),
         f'--cattype={cattype}'
     ]
