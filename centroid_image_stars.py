@@ -55,7 +55,7 @@ def centroid_image_stars(fits_dir, output_dir):
             print(f'Failed on {fits_path}: {e}')
 
 
-def run_imcore_on_fits(fits_path, output_dir, ipix=2, threshold=3, cattype=2):
+def run_imcore_on_fits(fits_path, output_dir, ipix=2, thresh=3, cattype=2):
     """
     Run CASU imcore source extraction on a FITS image.
 
@@ -69,7 +69,7 @@ def run_imcore_on_fits(fits_path, output_dir, ipix=2, threshold=3, cattype=2):
         Minimum number of pixels above background for an object to be
         considered a detection. I have not put much thought into this
         parameter. This should be optimized in the future.
-    threshold
+    thresh
         The isophotal analysis threshold, specified in terms of the number of
         standard deviations above the local background level. The global sigma
         is computed as part of the background estimation. The minimum allowed
@@ -85,6 +85,12 @@ def run_imcore_on_fits(fits_path, output_dir, ipix=2, threshold=3, cattype=2):
         Path to the generated ellipse (.ell) catalog.
     cat_path
         Path to the generated source catalog (.cat).
+
+    Notes
+    -----
+    http://casu.ast.cam.ac.uk/surveys-projects/software-release/imcore
+    Uses the confidence map from confidence_map in the analysis. If a filename
+    of noconf is specified no confidence map is used in the analysis.
     """
     base = os.path.basename(fits_path).replace('.fits', '').replace('.fit', '')
     cat_path = os.path.join(output_dir, f'{base}.cat')
@@ -96,7 +102,7 @@ def run_imcore_on_fits(fits_path, output_dir, ipix=2, threshold=3, cattype=2):
         'noconf',
         cat_path,
         str(ipix),
-        str(threshold),
+        str(thresh),
         f'--cattype={cattype}'
     ]
 
