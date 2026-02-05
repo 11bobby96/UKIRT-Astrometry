@@ -74,9 +74,8 @@ def run_imcore_on_fits(fits_path, output_dir, mesh_size=2, threshold=3, cattype=
         Detection threshold in units of background sigma. Sources must exceed
         this value above the local background to be detected.
     cattype
-        Output catalog format flag for imcore. Controls the type and content
-        of the generated source catalog. I have not put much thought into this
-        parameter. This should be optimized in the future.
+        Output catalogue type: 1 == INT WFC, 2 == WFCAM,
+        3 == Basic, 4 == Object Mask, 6 == VIRCAM or VST
 
     Returns
     -------
