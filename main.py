@@ -11,16 +11,24 @@ from get_new_wcs import get_new_wcs
 from centroid_image_stars import centroid_image_stars
 from find_gaia_stars import find_gaia_stars
 
-test_target = 'W0436+1901'
+target = 'W0436+1901'
+base_dir = '/Users/bobbystiller/Documents/UKIRT_Bobby/UKIRT_data'
+save_dir = '/Users/bobbystiller/Desktop/test'
 
 if __name__ == '__main__':
 
-    get_new_wcs(data_dir=f'/Users/bobbystiller/Documents/UKIRT_Bobby/UKIRT_data/{test_target}',
-                       output_dir='/Users/bobbystiller/Desktop/test/data',
-                       frame=3)
+    get_new_wcs(
+        data_dir=f'{base_dir}/{target}',
+        output_dir=f'{save_dir}/data',
+        frame=3
+    )
 
-    centroid_image_stars(fits_dir=f'/Users/bobbystiller/Desktop/test/data/{test_target}',
-                         output_dir='/Users/bobbystiller/Desktop/test/centroids')
+    centroid_image_stars(
+        fits_dir=f'{save_dir}/data/{target}',
+        output_dir=f'{save_dir}/centroids'
+    )
 
-    find_gaia_stars(fits_dir=f'/Users/bobbystiller/Desktop/test/data/{test_target}',
-                    output_dir='/Users/bobbystiller/Desktop/test/gaia')
+    find_gaia_stars(
+        fits_dir=f'{save_dir}/data/{target}',
+        output_dir=f'{save_dir}/gaia'
+    )
