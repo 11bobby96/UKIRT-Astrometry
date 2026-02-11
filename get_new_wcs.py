@@ -35,7 +35,7 @@ def get_new_wcs(data_dir, output_dir, frame):
             hdu = save_target_frame(file, output_dir, frame)
             wcs = plate_solution(file)
             update_wcs_header(hdu, wcs)
-            break
+            break  # delete this line once code is working
 
 
 def save_target_frame(file, output_dir, frame):
@@ -90,25 +90,20 @@ def save_target_frame(file, output_dir, frame):
 
 def plate_solution(image_path):
     """
-    Extract a specific HDU from a FITS file and save it as a new Primary HDU.
+    Solve for an astrometric WCS solution for a FITS image using Astrometry.net.
 
-    The primary header (HDU 0) and the target extension header are merged.
-    The resulting image is written to a directory structure organized by
-    target and semester.
+    This function submits the FITS file at `image_path` to Astrometry.net and
+    returns the resulting WCS header.
 
     Parameters
     ----------
-    file
-        Path to the input FITS file.
-    output_dir
-        Base directory where extracted frames will be written.
-    frame
-        HDU index to extract.
+    image_path
+        Path to the input FITS image to be solved.
 
     Returns
     -------
-    out_path
-        Path to the newly written FITS file.
+    wcs_header
+        WCS header solution returned by Astrometry.net.
     """
     ast = AstrometryNet()
     ast.api_key = 'zemvfxdxbnimplin'
