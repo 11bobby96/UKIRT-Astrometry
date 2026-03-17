@@ -45,7 +45,8 @@ def centroid_image_stars(fits_dir, output_dir):
             ell_path, cat_path = run_imcore_on_fits(fits_path, output_path)
             df = parse_casu_ell_file(ell_path, fits_path)
 
-            csv_path = ell_path.replace('.ell', '.csv')
+            ell_path = Path(ell_path)
+            csv_path = ell_path.with_name(f'casu_{ell_path.stem}.csv')
             df.to_csv(csv_path, index=False)
 
             os.remove(ell_path)

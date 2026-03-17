@@ -51,7 +51,7 @@ def find_gaia_stars(fits_dir, output_dir):
             gaia_save_path = output_root / semester / target
             gaia_save_path.mkdir(parents=True, exist_ok=True)
 
-            output_csv = gaia_save_path / f'{file.stem}.csv'
+            output_csv = gaia_save_path / f'gaia_{file.stem}.csv'
 
             df_gaia = results.to_pandas()
             df_gaia.to_csv(output_csv, index=True)

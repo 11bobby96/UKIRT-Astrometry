@@ -13,7 +13,7 @@ from find_gaia_stars import find_gaia_stars
 
 target = 'W0436+1901'
 base_dir = '/Users/bobbystiller/Documents/UKIRT_Bobby/UKIRT_data'
-save_dir = '/Users/bobbystiller/Desktop/test'
+save_dir = '/Users/bobbystiller/Documents/sandbox'
 
 if __name__ == '__main__':
 

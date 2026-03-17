@@ -33,7 +33,7 @@ def get_new_wcs(data_dir, output_dir, frame):
 
         for file in tqdm(files):
             hdu = save_target_frame(file, output_dir, frame)
-            wcs = plate_solution(file)
+            wcs = plate_solution(hdu)
             update_wcs_header(hdu, wcs)
             break  # delete this line once code is working
 
