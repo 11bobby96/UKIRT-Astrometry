@@ -1,3 +1,4 @@
+import time
 from glob import glob
 from tqdm import tqdm
 from pathlib import Path
@@ -28,14 +29,20 @@ def get_new_wcs(data_dir, output_dir, frame):
     None
     """
     semesters = sorted(glob(f'{data_dir}/U*'))
-    for semester in tqdm(semesters):
+
+    for i, semester in enumerate(tqdm(semesters)):
         files = sorted(glob(f'{semester}/*.fit'))
+
+        # if i == 0:
+        #     files = files[50:]  # resume first semester at image 50
+
+        # if i > 0:  # resume second semester (indent for loop)
 
         for file in tqdm(files):
             hdu = save_target_frame(file, output_dir, frame)
             wcs = plate_solution(hdu)
             update_wcs_header(hdu, wcs)
-            break  # delete this line once code is working
+            # break  # delete this line once code is working
 
 
 def save_target_frame(file, output_dir, frame):
@@ -88,17 +95,20 @@ def save_target_frame(file, output_dir, frame):
     return out_path
 
 
-def plate_solution(image_path):
+def plate_solution(image_path, max_attempts=3):
     """
     Solve for an astrometric WCS solution for a FITS image using Astrometry.net.
 
     This function submits the FITS file at `image_path` to Astrometry.net and
-    returns the resulting WCS header.
+    returns the resulting WCS header. Retries if the connection drops.
 
     Parameters
     ----------
     image_path
         Path to the input FITS image to be solved.
+    max_attempts
+        Maximum number of attempts to solve the image if a connection
+        error occurs. Default is 3.
 
     Returns
     -------
@@ -107,8 +117,23 @@ def plate_solution(image_path):
     """
     ast = AstrometryNet()
     ast.api_key = 'zemvfxdxbnimplin'
-    wcs_header = ast.solve_from_image(image_path, solve_timeout=1000)
-    return wcs_header
+
+    for attempt in range(max_attempts):
+
+        try:
+            wcs_header = ast.solve_from_image(image_path, solve_timeout=1000)
+            return wcs_header
+
+        except Exception as e:
+
+            print(f"\nPlate solve failed (attempt {attempt+1}/{max_attempts})")
+            print(e)
+
+            if attempt < max_attempts - 1:
+                print("Retrying in 10 seconds...")
+                time.sleep(10)
+            else:
+                raise
 
 
 def update_wcs_header(image_path, wcs_header):

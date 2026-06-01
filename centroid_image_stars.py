@@ -16,7 +16,7 @@ def centroid_image_stars(fits_dir, output_dir):
     imcore source extraction on each file, parses the resulting ellipse
     catalog, converts centroids to world coordinates using the image WCS,
     and saves the results to CSV files. Temporary .ell and .cat files
-    produced by imcore are deleted after conversion to CSV. Failures are
+    produced by imcore rare deleted after conversion to CSV. Failures are
     reported but do not stop execution.
 
     Parameters

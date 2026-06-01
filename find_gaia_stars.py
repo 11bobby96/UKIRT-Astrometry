@@ -1,4 +1,4 @@
-import ssl
+# import ssl
 import numpy as np
 from glob import glob
 from tqdm import tqdm
@@ -126,6 +126,6 @@ def gaia_query(central_ra, central_dec, width, height):
     coord = SkyCoord(ra=central_ra, dec=central_dec, unit=(u.degree, u.degree), frame='icrs')
     width = u.Quantity(width + 0.02, u.deg)
     height = u.Quantity(height + 0.02, u.deg)
-    ssl._create_default_https_context = ssl._create_unverified_context
+    # ssl._create_default_https_context = ssl._create_unverified_context
     r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
     return r
