@@ -1,4 +1,3 @@
-# import ssl
 import numpy as np
 from glob import glob
 from tqdm import tqdm
@@ -21,9 +20,9 @@ def find_gaia_stars(fits_dir, output_dir):
 
     Parameters
     ----------
-    fits_dir
+    fits_dir : str or pathlib.Path
         Base directory containing semester subdirectories with FITS images.
-    output_dir
+    output_dir : str or pathlib.Path
         Destination root directory where Gaia query CSV files will be written.
 
     Returns
@@ -39,16 +38,16 @@ def find_gaia_stars(fits_dir, output_dir):
         for file in tqdm(files):
             file = Path(file)
 
-            semester = file.parts[-3]
-            target = file.parts[-2]
+            target = file.parts[-3]
+            semester = file.parts[-2]
 
             data = fits.getdata(file, hdu=0)
             wcs = WCS(fits.getheader(file, hdu=0))
 
-            central_ra, central_dec, width, height = query_region(data, wcs)
-            results = gaia_query(central_ra, central_dec, width, height)
+            central_ra, central_dec, width, height = _query_region(data, wcs)
+            results = _gaia_query(central_ra, central_dec, width, height)
 
-            gaia_save_path = output_root / semester / target
+            gaia_save_path = output_root / target / semester
             gaia_save_path.mkdir(parents=True, exist_ok=True)
 
             output_csv = gaia_save_path / f'gaia_{file.stem}.csv'
@@ -57,7 +56,7 @@ def find_gaia_stars(fits_dir, output_dir):
             df_gaia.to_csv(output_csv, index=True)
 
 
-def query_region(image, wcs_header):
+def _query_region(image, wcs_header):
     """
     Estimate the central sky position and angular size of a FITS image.
 
@@ -66,20 +65,20 @@ def query_region(image, wcs_header):
 
     Parameters
     ----------
-    image
+    image : numpy.ndarray
         2D image array used to determine the image center in pixel coordinates.
-    wcs_header
+    wcs_header : astropy.wcs.WCS
         WCS object used to convert pixel coordinates to sky coordinates.
 
     Returns
     -------
-    central_ra
+    central_ra : float
         Right ascension of the image center (degrees).
-    central_dec
+    central_dec : float
         Declination of the image center (degrees).
-    width
+    width : float
         Approximate angular width of the image footprint in RA (degrees).
-    height
+    height : float
         Approximate angular height of the image footprint in Dec (degrees).
     """
     center = wcs_header.pixel_to_world(np.shape(image)[0] / 2, np.shape(image)[1] / 2)
@@ -98,7 +97,7 @@ def query_region(image, wcs_header):
     return center.ra.value, center.dec.value, width, height
 
 
-def gaia_query(central_ra, central_dec, width, height):
+def _gaia_query(central_ra, central_dec, width, height):
     """
     Query the Gaia archive for sources in a rectangular region on the sky.
 
@@ -108,24 +107,23 @@ def gaia_query(central_ra, central_dec, width, height):
 
     Parameters
     ----------
-    central_ra
+    central_ra : float
         Right ascension of the query center (degrees).
-    central_dec
+    central_dec : float
         Declination of the query center (degrees).
-    width
+    width : float
         Angular width of the query region (degrees).
-    height
+    height : float
         Angular height of the query region (degrees).
 
     Returns
     -------
-    results
+    results : astropy.table.Table
         Gaia query results table returned by the Gaia archive query.
     """
     Gaia.ROW_LIMIT = -1
     coord = SkyCoord(ra=central_ra, dec=central_dec, unit=(u.degree, u.degree), frame='icrs')
     width = u.Quantity(width + 0.02, u.deg)
     height = u.Quantity(height + 0.02, u.deg)
-    # ssl._create_default_https_context = ssl._create_unverified_context
     r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
     return r

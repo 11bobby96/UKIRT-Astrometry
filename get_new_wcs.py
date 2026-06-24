@@ -9,7 +9,7 @@ from astroquery.astrometry_net import AstrometryNet
 def get_new_wcs(data_dir, output_dir, frame):
     """
     Generate new WCS solutions for FITS images and write updated files.
-
+    
     This function iterates through semester directories within `data_dir`,
     extracts a specified HDU from each FITS file, writes it to `output_dir`,
     solves for a new astrometric plate solution using Astrometry.net,
@@ -17,12 +17,13 @@ def get_new_wcs(data_dir, output_dir, frame):
 
     Parameters
     ----------
-    data_dir
-        Base directory containing semester subdirectories (e.g., U* folders).
-    output_dir
+    data_dir : str or pathlib.Path
+        Base directory containing semester subdirectories, such as U* folders.
+    output_dir : str or pathlib.Path
         Destination directory for WCS-updated FITS images.
-    frame
-        HDU index to extract from each FITS file (e.g., 3 for WFCAM science frame).
+    frame : int
+        HDU index to extract from each FITS file, such as 3 for a WFCAM
+        science frame.
 
     Returns
     -------
@@ -33,39 +34,33 @@ def get_new_wcs(data_dir, output_dir, frame):
     for i, semester in enumerate(tqdm(semesters)):
         files = sorted(glob(f'{semester}/*.fit'))
 
-        # if i == 0:
-        #     files = files[50:]  # resume first semester at image 50
-
-        # if i > 0:  # resume second semester (indent for loop)
-
         for file in tqdm(files):
-            hdu = save_target_frame(file, output_dir, frame)
-            wcs = plate_solution(hdu)
-            update_wcs_header(hdu, wcs)
-            # break  # delete this line once code is working
+            hdu = _save_target_frame(file, output_dir, frame)
+            wcs = _plate_solution(hdu)
+            _update_wcs_header(hdu, wcs)
 
 
-def save_target_frame(file, output_dir, frame):
+def _save_target_frame(file, output_dir, frame):
     """
     Extract a specific HDU from a FITS file and save it as a new Primary HDU.
 
-    The primary header (HDU 0) and the target extension header are merged.
+    The primary header, HDU 0, and the target extension header are merged.
     The resulting image is written to a directory structure organized by
     target and semester. The header keyword 'CC_PRES' is removed if present
     to avoid conflicts.
 
     Parameters
     ----------
-    file
+    file : str or pathlib.Path
         Path to the input FITS file.
-    output_dir
+    output_dir : str or pathlib.Path
         Base directory where extracted frames will be written.
-    frame
-        HDU index to extract.
+    frame : int
+        HDU index to extract from the input FITS file.
 
     Returns
     -------
-    out_path
+    out_path : pathlib.Path
         Path to the newly written FITS file.
     """
     hdulist = fits.open(file)
@@ -95,24 +90,24 @@ def save_target_frame(file, output_dir, frame):
     return out_path
 
 
-def plate_solution(image_path, max_attempts=3):
+def _plate_solution(image_path, max_attempts=3):
     """
-    Solve for an astrometric WCS solution for a FITS image using Astrometry.net.
+    Solve for an astrometric WCS solution using Astrometry.net.
 
     This function submits the FITS file at `image_path` to Astrometry.net and
-    returns the resulting WCS header. Retries if the connection drops.
+    returns the resulting WCS header. If the plate solve fails, the function
+    retries up to `max_attempts` times before raising the final exception.
 
     Parameters
     ----------
-    image_path
+    image_path : str or pathlib.Path
         Path to the input FITS image to be solved.
-    max_attempts
-        Maximum number of attempts to solve the image if a connection
-        error occurs. Default is 3.
+    max_attempts : int, optional
+        Maximum number of plate-solve attempts. Default is 3.
 
     Returns
     -------
-    wcs_header
+    wcs_header : astropy.io.fits.Header
         WCS header solution returned by Astrometry.net.
     """
     ast = AstrometryNet()
@@ -136,16 +131,18 @@ def plate_solution(image_path, max_attempts=3):
                 raise
 
 
-def update_wcs_header(image_path, wcs_header):
+def _update_wcs_header(image_path, wcs_header):
     """
-    Update a FITS file header with a new WCS solution. The recently created
-    FITS file is modified in place.
+
+    Update a FITS file header with a new WCS solution.
+    The FITS file at `image_path` is modified in place. The new WCS keywords
+    from `wcs_header` are added to the primary HDU header.
 
     Parameters
     ----------
-    image_path
+    image_path : str or pathlib.Path
         Path to the FITS file whose header will be updated.
-    wcs_header
+    wcs_header : astropy.io.fits.Header
         WCS header returned by `plate_solution`.
 
     Returns
