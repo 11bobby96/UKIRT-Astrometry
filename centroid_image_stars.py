@@ -21,9 +21,9 @@ def centroid_image_stars(fits_dir, output_dir):
 
     Parameters
     ----------
-    fits_dir
+    fits_dir : str or pathlib.Path
         Base directory containing FITS images organized by target and semester.
-    output_dir
+    output_dir : str or pathlib.Path
         Destination directory where centroid catalogs will be written.
 
     Returns
@@ -42,8 +42,8 @@ def centroid_image_stars(fits_dir, output_dir):
             output_path = output_dir / target / semester
             output_path.mkdir(parents=True, exist_ok=True)
 
-            ell_path, cat_path = run_imcore_on_fits(fits_path, output_path)
-            df = parse_casu_ell_file(ell_path, fits_path)
+            ell_path, cat_path = _run_imcore_on_fits(fits_path, output_path)
+            df = _parse_casu_ell_file(ell_path, fits_path)
 
             ell_path = Path(ell_path)
             csv_path = ell_path.with_name(f'casu_{ell_path.stem}.csv')
@@ -56,27 +56,27 @@ def centroid_image_stars(fits_dir, output_dir):
             print(f'Failed on {fits_path}: {e}')
 
 
-def run_imcore_on_fits(fits_path, output_dir, ipix=2, thresh=3, cattype=2):
+def _run_imcore_on_fits(fits_path, output_dir, ipix=2, thresh=3, cattype=2):
     """
     Run CASU imcore source extraction on a FITS image.
 
     Parameters
     ----------
-    fits_path
+    fits_path : str or pathlib.Path
         Path to the FITS image to process.
-    output_dir
+    output_dir : str or pathlib.Path
         Directory where output catalog files will be written.
-    ipix
+    ipix : int, optional
         Minimum number of pixels above background for an object to be
         considered a detection. I have not put much thought into this
         parameter. This should be optimized in the future.
-    thresh
+    thresh : int or float, optional
         The isophotal analysis threshold, specified in terms of the number of
         standard deviations above the local background level. The global sigma
         is computed as part of the background estimation. The minimum allowed
         value is 1 and the recommended value for general purpose deep image
         detection is 1.25.
-    cattype
+    cattype : int, optional
         Output catalogue type: 1 == INT WFC, 2 == WFCAM,
         3 == Basic, 4 == Object Mask, 6 == VIRCAM or VST
 
@@ -107,11 +107,12 @@ def run_imcore_on_fits(fits_path, output_dir, ipix=2, thresh=3, cattype=2):
         f'--cattype={cattype}'
     ]
 
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    subprocess.run(cmd, capture_output=True, text=True)
+
     return ell_path, cat_path
 
 
-def parse_casu_ell_file(ell_path, fits_path):
+def _parse_casu_ell_file(ell_path, fits_path):
     """
     Parse a CASU imcore ellipse file and compute sky coordinates.
 
@@ -121,14 +122,14 @@ def parse_casu_ell_file(ell_path, fits_path):
 
     Parameters
     ----------
-    ell_path
+    ell_path : str or pathlib.Path
         Path to the CASU ellipse (.ell) file.
-    fits_path
+    fits_path : str or pathlib.Path
         Path to the corresponding FITS image containing a valid WCS.
 
     Returns
     -------
-    dataframe
+    dataframe : pandas.DataFrame
         Table containing x, y, a, b, theta, raWCS, and decWCS for each source.
     """
     with fits.open(fits_path) as hdul:
