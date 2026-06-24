@@ -133,8 +133,8 @@ def _plate_solution(image_path, max_attempts=3):
 
 def _update_wcs_header(image_path, wcs_header):
     """
-
     Update a FITS file header with a new WCS solution.
+    
     The FITS file at `image_path` is modified in place. The new WCS keywords
     from `wcs_header` are added to the primary HDU header.
 
